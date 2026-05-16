@@ -1247,19 +1247,27 @@ def reset_database_step1():
 
 def reset_database_step2(confirm_text):
     global _reset_code
-    if confirm_text.strip().upper() != _reset_code:
+    confirm_value = (confirm_text or "").strip().upper()
+    expected_code = globals().get("_reset_code", "")
+    if not expected_code or confirm_value != expected_code:
         _reset_code = ""
         return t("confirm_wrong"), gr.update(visible=False)
 
+    _reset_code = ""
     _reset_managers()
 
     try:
         import subprocess
         script_path = os.path.join(WORKSPACE_ROOT, "scripts", "reset_database.py")
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
         result = subprocess.run(
             [sys.executable, script_path],
             capture_output=True, text=True, timeout=60,
+            encoding="utf-8", errors="replace",
             cwd=WORKSPACE_ROOT,
+            env=env,
         )
         output = result.stdout.strip()
         if result.returncode != 0:
