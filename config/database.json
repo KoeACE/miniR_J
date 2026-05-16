@@ -1,0 +1,6 @@
+{
+    "type": "sqlite",
+    "sqlite": {
+        "db_path": "faiss_index/knowledge_base.db"
+    }
+}
